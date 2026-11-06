@@ -1,461 +1,376 @@
+// =====================================
+// SETTINGS
+// =====================================
 
-/* ==========================================
-   BUBU & DUDU — FINAL INTERACTION ENGINE
-========================================== */
+const PASSWORD = "load";
 
-/* 01. PASSWORD SYSTEM */
-
-const SECRET_PASSWORD = "load";
+// =====================================
+// PASSWORD UNLOCK
+// =====================================
 
 const lockScreen = document.getElementById("lockScreen");
-const website = document.getElementById("website");
-const passcode = document.getElementById("passcode");
-const errorMessage = document.getElementById("error");
+const mainContent = document.getElementById("mainContent");
+const passwordForm = document.getElementById("passwordForm");
+const passwordInput = document.getElementById("passwordInput");
+const errorMessage = document.getElementById("errorMessage");
+const musicToggle = document.getElementById("musicToggle");
 
-let unlocked = false;
+passwordForm.addEventListener("submit", function (event) {
+  event.preventDefault();
 
-function unlockWebsite() {
+  if (passwordInput.value.trim().toLowerCase() === PASSWORD) {
+    lockScreen.classList.add("hidden");
+    mainContent.classList.remove("hidden");
+    musicToggle.classList.remove("hidden");
 
-  if (unlocked) return;
-
-  const entered = passcode.value.trim().toLowerCase();
-
-  if (entered !== SECRET_PASSWORD.toLowerCase()) {
-
-    errorMessage.textContent =
-      "Wrong secret code! Try again, Bubu. 💗";
-
-    passcode.value = "";
-    passcode.focus();
-
-    return;
+    startMusic();
+    launchConfetti();
+    startFloatingHearts();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  } else {
+    errorMessage.textContent = "Oops! That's not the secret password. ❤️";
+    passwordInput.value = "";
+    passwordInput.focus();
   }
-
-  unlocked = true;
-  errorMessage.textContent = "";
-
-  /*
-    IMPORTANT:
-    Start audio directly inside this click handler.
-    Browsers require a user interaction before audio playback.
-  */
-
-  startMusic();
-
-  website.classList.remove("hidden");
-
-  lockScreen.classList.add("hide");
-
-  setTimeout(() => {
-    lockScreen.style.display = "none";
-  }, 850);
-
-  startBackgroundEffects();
-
-  launchConfetti(120);
-}
-
-document.getElementById("unlockButton")
-  .addEventListener("click", unlockWebsite);
-
-passcode.addEventListener("keydown", event => {
-  if (event.key === "Enter") unlockWebsite();
 });
 
-
-/* 02. SHOW / HIDE PASSWORD */
-
-document.getElementById("togglePassword")
-  .addEventListener("click", () => {
-
-    passcode.type =
-      passcode.type === "password" ? "text" : "password";
-
-  });
-
-
-/* 03. COUNTDOWN */
+// =====================================
+// COUNTDOWN TO NOVEMBER 9
+// =====================================
 
 function updateCountdown() {
-
   const now = new Date();
 
   // November 9, 2026
   let birthday = new Date(2026, 10, 9, 0, 0, 0);
 
-  // Automatically use next year's birthday after this year's date.
+  // If this year's birthday has passed, use next year.
   if (now > new Date(2026, 10, 9, 23, 59, 59)) {
     birthday = new Date(2027, 10, 9, 0, 0, 0);
   }
 
-  const difference = Math.max(0, birthday - now);
+  const difference = birthday.getTime() - now.getTime();
 
-  const days = Math.floor(difference / 86400000);
-  const hours = Math.floor(difference / 3600000) % 24;
-  const minutes = Math.floor(difference / 60000) % 60;
-  const seconds = Math.floor(difference / 1000) % 60;
+  const days = document.getElementById("days");
+  const hours = document.getElementById("hours");
+  const minutes = document.getElementById("minutes");
+  const seconds = document.getElementById("seconds");
+  const message = document.getElementById("countdownMessage");
 
-  document.getElementById("days").textContent =
-    String(days).padStart(2, "0");
-
-  document.getElementById("hours").textContent =
-    String(hours).padStart(2, "0");
-
-  document.getElementById("minutes").textContent =
-    String(minutes).padStart(2, "0");
-
-  document.getElementById("seconds").textContent =
-    String(seconds).padStart(2, "0");
-}
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
-
-/* 04. CONFETTI */
-
-function launchConfetti(amount = 100) {
-
-  const colors = [
-    "#ff70ad",
-    "#ffc4dc",
-    "#a77aff",
-    "#ffe2a3",
-    "#ffffff",
-    "#e99cff"
-  ];
-
-  for (let i = 0; i < amount; i++) {
-
-    const piece = document.createElement("div");
-
-    piece.className = "confetti";
-
-    piece.style.left = Math.random() * 100 + "vw";
-
-    piece.style.width =
-      5 + Math.random() * 9 + "px";
-
-    piece.style.height =
-      8 + Math.random() * 12 + "px";
-
-    piece.style.background =
-      colors[Math.floor(Math.random() * colors.length)];
-
-    piece.style.borderRadius =
-      Math.random() > .5 ? "50%" : "2px";
-
-    const duration = 2.5 + Math.random() * 4;
-
-    piece.style.animationDuration = duration + "s";
-
-    document.body.appendChild(piece);
-
-    setTimeout(() => piece.remove(), duration * 1000);
+  if (difference <= 0) {
+    days.textContent = "00";
+    hours.textContent = "00";
+    minutes.textContent = "00";
+    seconds.textContent = "00";
+    message.textContent = "IT'S YOUR BIRTHDAY, BUBU! 🎉❤️";
+    return;
   }
+
+  const totalSeconds = Math.floor(difference / 1000);
+
+  days.textContent = String(
+    Math.floor(totalSeconds / 86400)
+  ).padStart(2, "0");
+
+  hours.textContent = String(
+    Math.floor((totalSeconds % 86400) / 3600)
+  ).padStart(2, "0");
+
+  minutes.textContent = String(
+    Math.floor((totalSeconds % 3600) / 60)
+  ).padStart(2, "0");
+
+  seconds.textContent = String(
+    totalSeconds % 60
+  ).padStart(2, "0");
+
+  message.textContent = "Counting every moment until your special day ❤️";
 }
 
-
-/* 05. FLOATING HEARTS */
-
-let heartInterval = null;
-
-function createHeart() {
-
-  const heart = document.createElement("div");
-
-  heart.className = "floating-heart";
-
-  const symbols = [
-    "❤️", "💗", "💕", "💖",
-    "🌸", "✨", "💘", "🦋"
-  ];
-
-  heart.textContent =
-    symbols[Math.floor(Math.random() * symbols.length)];
-
-  heart.style.left = Math.random() * 100 + "vw";
-
-  heart.style.fontSize =
-    15 + Math.random() * 22 + "px";
-
-  const duration = 5 + Math.random() * 5;
-
-  heart.style.animationDuration = duration + "s";
-
-  document.body.appendChild(heart);
-
-  setTimeout(() => heart.remove(), duration * 1000);
-}
-
-function startBackgroundEffects() {
-
-  if (heartInterval) return;
-
-  heartInterval = setInterval(createHeart, 650);
-}
-
-
-/* 06. BLOW OUT CANDLES */
-
-let candlesBlown = false;
-
-document.getElementById("blowButton")
-  .addEventListener("click", () => {
-
-    if (candlesBlown) return;
-
-    candlesBlown = true;
-
-    const flames = document.querySelectorAll(".flame");
-
-    flames.forEach((flame, index) => {
-
-      setTimeout(() => {
-
-        createSmoke(flame);
-        flame.classList.add("out");
-
-      }, index * 300);
-
-    });
-
-    document.getElementById("cakeStatus").textContent =
-      "Happy Birthday, Bubu! Your wish is on its way! ✨❤️";
-
-    launchConfetti(150);
-
-    playCelebrationSound();
-  });
-
-
-/* 07. SMOKE EFFECT */
-
-function createSmoke(element) {
-
-  const rect = element.getBoundingClientRect();
-
-  for (let i = 0; i < 6; i++) {
-
-    const smoke = document.createElement("div");
-
-    smoke.style.position = "fixed";
-    smoke.style.left = rect.left + rect.width / 2 + "px";
-    smoke.style.top = rect.top + "px";
-    smoke.style.width = "7px";
-    smoke.style.height = "7px";
-    smoke.style.borderRadius = "50%";
-    smoke.style.background = "#ffffff";
-    smoke.style.opacity = ".6";
-    smoke.style.filter = "blur(3px)";
-    smoke.style.pointerEvents = "none";
-    smoke.style.zIndex = "600";
-
-    document.body.appendChild(smoke);
-
-    const animation = smoke.animate([
-      {
-        transform: "translate(0,0) scale(1)",
-        opacity: .6
-      },
-      {
-        transform:
-          `translate(${Math.random()*30-15}px,-65px) scale(4)`,
-        opacity: 0
-      }
-    ], {
-      duration: 1400,
-      easing: "ease-out"
-    });
-
-    animation.onfinish = () => smoke.remove();
-  }
-}
-
-
-/* 08. HERO BUTTON */
-
-document.getElementById("startSurprise")
-  .addEventListener("click", () => {
-
-    document.getElementById("birthday")
-      .scrollIntoView({ behavior: "smooth" });
-
-    launchConfetti(70);
-  });
-
-
-/* 09. FINAL CELEBRATION */
-
-document.getElementById("finalCelebrate")
-  .addEventListener("click", () => {
-
-    launchConfetti(220);
-
-    for (let i = 0; i < 20; i++) {
-      setTimeout(createHeart, i * 120);
-    }
-
-    playCelebrationSound();
-  });
-
-
-/* 10. BACKGROUND MUSIC
-   Starts automatically after correct password.
-   Original synthesized romantic melody.
-*/
+// =====================================
+// BACKGROUND MUSIC
+// =====================================
 
 let audioContext = null;
-let musicEnabled = false;
+let musicPlaying = false;
 let musicTimer = null;
-let noteIndex = 0;
+let musicStep = 0;
 
 const melody = [
-  392, 392, 440, 392, 523, 494,
-  392, 392, 440, 392, 587, 523,
-  392, 392, 784, 659, 523, 494, 440,
-  698, 698, 659, 523, 587, 523,
-  440, 494, 523, 587, 659, 784,
-  659, 587, 523, 494, 440, 392
+  392, 440, 494, 440,
+  392, 330, 349, 392,
+  440, 494, 523, 494,
+  440, 392, 349, 330
 ];
 
-function getAudioContext() {
+function playNote(frequency, duration, volume = 0.045) {
+  if (!audioContext || !musicPlaying) return;
 
-  if (!audioContext) {
-
-    const AudioClass =
-      window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioClass) return null;
-
-    audioContext = new AudioClass();
-  }
-
-  return audioContext;
-}
-
-
-/* PLAY ONE NOTE */
-
-function playTone(frequency, duration = .4) {
-
-  const audio = getAudioContext();
-
-  if (!audio) return;
-
-  if (audio.state === "suspended") {
-    audio.resume();
-  }
-
-  const oscillator = audio.createOscillator();
-  const volume = audio.createGain();
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
 
   oscillator.type = "sine";
   oscillator.frequency.value = frequency;
 
-  volume.gain.setValueAtTime(.0001, audio.currentTime);
-
-  volume.gain.exponentialRampToValueAtTime(
-    .045, audio.currentTime + .04
+  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+    volume,
+    audioContext.currentTime + 0.04
+  );
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    audioContext.currentTime + duration
   );
 
-  volume.gain.exponentialRampToValueAtTime(
-    .0001, audio.currentTime + duration
-  );
-
-  oscillator.connect(volume);
-  volume.connect(audio.destination);
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
 
   oscillator.start();
-  oscillator.stop(audio.currentTime + duration + .05);
+  oscillator.stop(audioContext.currentTime + duration + 0.05);
 }
 
+function musicLoop() {
+  if (!musicPlaying) return;
 
-/* START MUSIC */
+  const note = melody[musicStep % melody.length];
 
-function startMusic() {
+  playNote(note, 0.55, 0.035);
+  playNote(note / 2, 0.65, 0.018);
 
-  if (musicEnabled) return;
-
-  const audio = getAudioContext();
-
-  if (!audio) return;
-
-  musicEnabled = true;
-
-  audio.resume();
-
-  document.getElementById("musicButton").textContent =
-    "♫ Music ON";
-
-  function nextNote() {
-
-    if (!musicEnabled) return;
-
-    playTone(melody[noteIndex % melody.length], .4);
-
-    noteIndex++;
-
-    musicTimer = setTimeout(nextNote, 480);
-  }
-
-  nextNote();
+  musicStep++;
 }
 
-
-/* STOP MUSIC */
-
-function stopMusic() {
-
-  musicEnabled = false;
-
-  clearTimeout(musicTimer);
-
-  document.getElementById("musicButton").textContent =
-    "♫ Music OFF";
-}
-
-
-/* MUSIC TOGGLE */
-
-document.getElementById("musicButton")
-  .addEventListener("click", () => {
-
-    if (musicEnabled) {
-      stopMusic();
-    } else {
-      startMusic();
+async function startMusic() {
+  try {
+    if (!audioContext) {
+      audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
 
-  });
+    await audioContext.resume();
 
+    if (musicPlaying) return;
 
-/* CELEBRATION SOUND */
+    musicPlaying = true;
+    musicToggle.textContent = "♫ Music: ON";
+
+    musicLoop();
+    musicTimer = setInterval(musicLoop, 650);
+  } catch (error) {
+    console.log("Music could not start:", error);
+  }
+}
+
+function stopMusic() {
+  musicPlaying = false;
+
+  if (musicTimer) {
+    clearInterval(musicTimer);
+    musicTimer = null;
+  }
+
+  musicToggle.textContent = "♫ Music: OFF";
+}
+
+musicToggle.addEventListener("click", async function () {
+  if (musicPlaying) {
+    stopMusic();
+  } else {
+    await startMusic();
+  }
+});
+
+// =====================================
+// BIRTHDAY LETTER - OPEN AND CLOSE
+// =====================================
+
+const letterButton = document.getElementById("letterButton");
+const letterButtonText = document.getElementById("letterButtonText");
+const letterArea = document.querySelector(".letter-area");
+const letterPaper = document.getElementById("letterPaper");
+const closeLetter = document.getElementById("closeLetter");
+
+let letterIsOpen = false;
+
+letterButton.addEventListener("click", function () {
+  if (letterIsOpen) return;
+
+  letterIsOpen = true;
+
+  letterArea.classList.add("open");
+  letterButton.setAttribute("aria-expanded", "true");
+  letterButtonText.textContent = "Your letter is open ❤️";
+
+  // Wait for the envelope flap to open before showing the letter.
+  setTimeout(function () {
+    letterPaper.classList.add("show");
+    letterPaper.setAttribute("aria-hidden", "false");
+
+    setTimeout(function () {
+      letterPaper.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }, 250);
+
+  }, 350);
+});
+
+closeLetter.addEventListener("click", function () {
+  if (!letterIsOpen) return;
+
+  letterPaper.classList.add("closing");
+
+  setTimeout(function () {
+    letterPaper.classList.remove("show", "closing");
+    letterPaper.setAttribute("aria-hidden", "true");
+
+    letterArea.classList.remove("open");
+    letterButton.setAttribute("aria-expanded", "false");
+    letterButtonText.textContent = "Open Your Letter 💌";
+
+    letterIsOpen = false;
+
+    letterButton.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, 350);
+});
+
+// =====================================
+// BLOW OUT CANDLES
+// =====================================
+
+const blowButton = document.getElementById("blowCandles");
+const candles = document.querySelector(".candles");
+const wishMessage = document.getElementById("wishMessage");
+
+blowButton.addEventListener("click", function () {
+  if (candles.classList.contains("blown")) {
+    wishMessage.textContent = "Your wish is already on its way! ❤️";
+    return;
+  }
+
+  candles.classList.add("blown");
+
+  wishMessage.textContent =
+    "May every beautiful wish of yours come true, Bubu! ✨";
+
+  playCelebrationSound();
+  launchConfetti();
+});
+
+// =====================================
+// CELEBRATION SOUND
+// =====================================
 
 function playCelebrationSound() {
+  if (!audioContext) return;
 
-  const notes = [523, 659, 784, 1047];
+  const notes = [523, 659, 784, 1046];
 
   notes.forEach((note, index) => {
-
     setTimeout(() => {
-      playTone(note, .3);
-    }, index * 150);
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
 
+      oscillator.type = "triangle";
+      oscillator.frequency.value = note;
+
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + 0.35
+      );
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.4);
+    }, index * 140);
   });
 }
 
+// =====================================
+// CONFETTI
+// =====================================
 
-/* 11. ANIMATED STAR BACKGROUND */
+function launchConfetti() {
+  const container = document.getElementById("confettiContainer");
+  const colors = [
+    "#ff8eae",
+    "#ffd166",
+    "#c8a2e8",
+    "#ffffff",
+    "#ffb8d0"
+  ];
+
+  for (let i = 0; i < 100; i++) {
+    const piece = document.createElement("div");
+
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.backgroundColor =
+      colors[Math.floor(Math.random() * colors.length)];
+
+    piece.style.animationDuration =
+      (2.5 + Math.random() * 3) + "s";
+
+    piece.style.animationDelay =
+      Math.random() * 1.5 + "s";
+
+    piece.style.transform =
+      `rotate(${Math.random() * 360}deg)`;
+
+    container.appendChild(piece);
+
+    setTimeout(() => piece.remove(), 6500);
+  }
+}
+
+// =====================================
+// FLOATING HEARTS
+// =====================================
+
+function createFloatingHeart() {
+  const heart = document.createElement("div");
+
+  heart.className = "floating-heart";
+  heart.textContent = ["❤️", "💕", "💗", "💖", "✨"][
+    Math.floor(Math.random() * 5)
+  ];
+
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = (15 + Math.random() * 22) + "px";
+
+  document.body.appendChild(heart);
+
+  setTimeout(() => heart.remove(), 5000);
+}
+
+let heartInterval = null;
+
+function startFloatingHearts() {
+  if (heartInterval) return;
+
+  heartInterval = setInterval(createFloatingHeart, 900);
+}
+
+// =====================================
+// STAR BACKGROUND
+// =====================================
 
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 
 let stars = [];
 
-function resizeStars() {
-
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
 
   canvas.width = window.innerWidth * ratio;
   canvas.height = window.innerHeight * ratio;
@@ -467,74 +382,52 @@ function resizeStars() {
 
   stars = [];
 
-  const count = Math.min(
-    150,
-    Math.floor(window.innerWidth / 7)
-  );
-
-  for (let i = 0; i < count; i++) {
-
+  for (let i = 0; i < 100; i++) {
     stars.push({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      radius: Math.random() * 1.7 + .3,
+      radius: Math.random() * 1.7 + 0.3,
       opacity: Math.random(),
-      speed: Math.random() * .015 + .003
+      speed: Math.random() * 0.008 + 0.002
     });
-
   }
 }
 
 function animateStars() {
-
-  ctx.clearRect(
-    0, 0,
-    window.innerWidth,
-    window.innerHeight
-  );
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   stars.forEach(star => {
-
     star.opacity += star.speed;
 
-    if (star.opacity > 1 || star.opacity < .15) {
+    if (star.opacity > 1 || star.opacity < 0.15) {
       star.speed *= -1;
     }
 
     ctx.beginPath();
+    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
 
-    ctx.arc(
-      star.x,
-      star.y,
-      star.radius,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.fillStyle =
-      `rgba(255,220,242,${star.opacity})`;
-
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = "#ff9dc9";
-
+    ctx.fillStyle = `rgba(255,255,255,${star.opacity})`;
     ctx.fill();
-
   });
-
-  ctx.shadowBlur = 0;
 
   requestAnimationFrame(animateStars);
 }
 
-window.addEventListener("resize", resizeStars);
+window.addEventListener("resize", resizeCanvas);
 
-resizeStars();
+resizeCanvas();
 animateStars();
 
+// =====================================
+// FINAL CELEBRATION BUTTON
+// =====================================
 
-/* 12. CONSOLE */
+document.getElementById("celebrateButton")
+  .addEventListener("click", function () {
+    launchConfetti();
+    playCelebrationSound();
 
-console.log(
-  "%c Made with love for Bubu ❤️ ",
-  "background:#ff70ad;color:white;padding:12px;font-size:18px;border-radius:10px;"
-);
+    for (let i = 0; i < 12; i++) {
+      setTimeout(createFloatingHeart, i * 120);
+    }
+  });
