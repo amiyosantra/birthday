@@ -1,9 +1,9 @@
 
 /* ==========================================
-   BUBU & DUDU — INTERACTION ENGINE
+   BUBU & DUDU — FINAL INTERACTION ENGINE
 ========================================== */
 
-/* 01. PASSWORD CONFIGURATION */
+/* 01. PASSWORD SYSTEM */
 
 const SECRET_PASSWORD = "load";
 
@@ -12,40 +12,47 @@ const website = document.getElementById("website");
 const passcode = document.getElementById("passcode");
 const errorMessage = document.getElementById("error");
 
+let unlocked = false;
+
 function unlockWebsite() {
+
+  if (unlocked) return;
 
   const entered = passcode.value.trim().toLowerCase();
 
-  if (entered === SECRET_PASSWORD.toLowerCase()) {
-
-    errorMessage.textContent = "";
-
-    lockScreen.classList.add("hide");
-
-    setTimeout(() => {
-      lockScreen.style.display = "none";
-      website.classList.remove("hidden");
-
-      startBackgroundEffects();
-      launchConfetti(100);
-      playSound("unlock");
-
-    }, 800);
-
-  } else {
+  if (entered !== SECRET_PASSWORD.toLowerCase()) {
 
     errorMessage.textContent =
       "Wrong secret code! Try again, Bubu. 💗";
 
-    passcode.classList.add("shake");
-
-    setTimeout(() => {
-      passcode.classList.remove("shake");
-    }, 500);
-
     passcode.value = "";
     passcode.focus();
+
+    return;
   }
+
+  unlocked = true;
+  errorMessage.textContent = "";
+
+  /*
+    IMPORTANT:
+    Start audio directly inside this click handler.
+    Browsers require a user interaction before audio playback.
+  */
+
+  startMusic();
+
+  website.classList.remove("hidden");
+
+  lockScreen.classList.add("hide");
+
+  setTimeout(() => {
+    lockScreen.style.display = "none";
+  }, 850);
+
+  startBackgroundEffects();
+
+  launchConfetti(120);
 }
 
 document.getElementById("unlockButton")
@@ -56,7 +63,7 @@ passcode.addEventListener("keydown", event => {
 });
 
 
-/* SHOW / HIDE PASSWORD */
+/* 02. SHOW / HIDE PASSWORD */
 
 document.getElementById("togglePassword")
   .addEventListener("click", () => {
@@ -67,15 +74,16 @@ document.getElementById("togglePassword")
   });
 
 
-/* 02. COUNTDOWN SYSTEM */
+/* 03. COUNTDOWN */
 
 function updateCountdown() {
 
   const now = new Date();
 
-  // November is month 10 in JavaScript.
+  // November 9, 2026
   let birthday = new Date(2026, 10, 9, 0, 0, 0);
 
+  // Automatically use next year's birthday after this year's date.
   if (now > new Date(2026, 10, 9, 23, 59, 59)) {
     birthday = new Date(2027, 10, 9, 0, 0, 0);
   }
@@ -104,7 +112,7 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 
-/* 03. CONFETTI ENGINE */
+/* 04. CONFETTI */
 
 function launchConfetti(amount = 100) {
 
@@ -148,7 +156,9 @@ function launchConfetti(amount = 100) {
 }
 
 
-/* 04. FLOATING HEARTS */
+/* 05. FLOATING HEARTS */
+
+let heartInterval = null;
 
 function createHeart() {
 
@@ -178,8 +188,6 @@ function createHeart() {
   setTimeout(() => heart.remove(), duration * 1000);
 }
 
-let heartInterval;
-
 function startBackgroundEffects() {
 
   if (heartInterval) return;
@@ -188,20 +196,14 @@ function startBackgroundEffects() {
 }
 
 
-/* 05. CANDLE BLOWING */
+/* 06. BLOW OUT CANDLES */
 
 let candlesBlown = false;
 
 document.getElementById("blowButton")
   .addEventListener("click", () => {
 
-    if (candlesBlown) {
-
-      document.getElementById("cakeStatus").textContent =
-        "All your wishes are floating in the universe. ❤️";
-
-      return;
-    }
+    if (candlesBlown) return;
 
     candlesBlown = true;
 
@@ -211,31 +213,29 @@ document.getElementById("blowButton")
 
       setTimeout(() => {
 
-        flame.classList.add("out");
-
-        // Small smoke effect
         createSmoke(flame);
+        flame.classList.add("out");
 
       }, index * 300);
 
     });
 
     document.getElementById("cakeStatus").textContent =
-      "Happy Birthday, Bubu! Your wish is on its way! ✨";
+      "Happy Birthday, Bubu! Your wish is on its way! ✨❤️";
 
-    launchConfetti(120);
-    playSound("celebration");
+    launchConfetti(150);
 
+    playCelebrationSound();
   });
 
 
-/* SMOKE PARTICLES */
+/* 07. SMOKE EFFECT */
 
 function createSmoke(element) {
 
   const rect = element.getBoundingClientRect();
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
 
     const smoke = document.createElement("div");
 
@@ -264,7 +264,7 @@ function createSmoke(element) {
         opacity: 0
       }
     ], {
-      duration: 1300,
+      duration: 1400,
       easing: "ease-out"
     });
 
@@ -273,60 +273,7 @@ function createSmoke(element) {
 }
 
 
-/* 06. GIFT OPENING */
-
-const giftBox = document.getElementById("giftBox");
-const giftButton = document.getElementById("giftButton");
-
-let giftOpened = false;
-
-giftButton.addEventListener("click", () => {
-
-  if (giftOpened) return;
-
-  giftOpened = true;
-
-  giftBox.classList.add("open");
-
-  giftButton.textContent = "Your Surprise Is Open! 💗";
-
-  document.getElementById("giftResult").innerHTML =
-    "🎁 Your biggest gift is a thousand hugs from Dudu!<br>" +
-    "<span style='font-size:25px'>I LOVE YOU, BUBU ❤️</span>";
-
-  launchConfetti(150);
-  playSound("celebration");
-
-});
-
-
-/* 07. LOVE LETTER */
-
-const letterEnvelope =
-  document.getElementById("letterEnvelope");
-
-const letterButton =
-  document.getElementById("letterButton");
-
-let letterOpened = false;
-
-letterButton.addEventListener("click", () => {
-
-  letterOpened = !letterOpened;
-
-  letterEnvelope.classList.toggle("open", letterOpened);
-
-  letterButton.textContent =
-    letterOpened ? "Close My Letter 💌" : "Read My Letter 💌";
-
-  if (letterOpened) {
-    playSound("unlock");
-  }
-
-});
-
-
-/* 08. CINEMATIC SURPRISE BUTTON */
+/* 08. HERO BUTTON */
 
 document.getElementById("startSurprise")
   .addEventListener("click", () => {
@@ -334,8 +281,7 @@ document.getElementById("startSurprise")
     document.getElementById("birthday")
       .scrollIntoView({ behavior: "smooth" });
 
-    launchConfetti(80);
-
+    launchConfetti(70);
   });
 
 
@@ -346,49 +292,52 @@ document.getElementById("finalCelebrate")
 
     launchConfetti(220);
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
       setTimeout(createHeart, i * 120);
     }
 
-    playSound("celebration");
-
+    playCelebrationSound();
   });
 
 
-/* 10. ORIGINAL BACKGROUND MUSIC
-   Browser-generated notes.
-   No external music file required.
+/* 10. BACKGROUND MUSIC
+   Starts automatically after correct password.
+   Original synthesized romantic melody.
 */
 
 let audioContext = null;
 let musicEnabled = false;
 let musicTimer = null;
+let noteIndex = 0;
 
 const melody = [
   392, 392, 440, 392, 523, 494,
   392, 392, 440, 392, 587, 523,
   392, 392, 784, 659, 523, 494, 440,
-  698, 698, 659, 523, 587, 523
+  698, 698, 659, 523, 587, 523,
+  440, 494, 523, 587, 659, 784,
+  659, 587, 523, 494, 440, 392
 ];
-
-let noteIndex = 0;
 
 function getAudioContext() {
 
   if (!audioContext) {
 
-    const AudioContextClass =
+    const AudioClass =
       window.AudioContext || window.webkitAudioContext;
 
-    if (!AudioContextClass) return null;
+    if (!AudioClass) return null;
 
-    audioContext = new AudioContextClass();
+    audioContext = new AudioClass();
   }
 
   return audioContext;
 }
 
-function playTone(frequency, duration = .35) {
+
+/* PLAY ONE NOTE */
+
+function playTone(frequency, duration = .4) {
 
   const audio = getAudioContext();
 
@@ -421,29 +370,40 @@ function playTone(frequency, duration = .35) {
   oscillator.stop(audio.currentTime + duration + .05);
 }
 
+
+/* START MUSIC */
+
 function startMusic() {
 
   if (musicEnabled) return;
 
+  const audio = getAudioContext();
+
+  if (!audio) return;
+
   musicEnabled = true;
 
-  const button = document.getElementById("musicButton");
+  audio.resume();
 
-  button.innerHTML = "♫ <span>Music ON</span>";
+  document.getElementById("musicButton").textContent =
+    "♫ Music ON";
 
   function nextNote() {
 
     if (!musicEnabled) return;
 
-    playTone(melody[noteIndex % melody.length], .35);
+    playTone(melody[noteIndex % melody.length], .4);
 
     noteIndex++;
 
-    musicTimer = setTimeout(nextNote, 430);
+    musicTimer = setTimeout(nextNote, 480);
   }
 
   nextNote();
 }
+
+
+/* STOP MUSIC */
 
 function stopMusic() {
 
@@ -451,9 +411,12 @@ function stopMusic() {
 
   clearTimeout(musicTimer);
 
-  document.getElementById("musicButton").innerHTML =
-    "♫ <span>Music OFF</span>";
+  document.getElementById("musicButton").textContent =
+    "♫ Music OFF";
 }
+
+
+/* MUSIC TOGGLE */
 
 document.getElementById("musicButton")
   .addEventListener("click", () => {
@@ -466,21 +429,24 @@ document.getElementById("musicButton")
 
   });
 
-function playSound(type) {
 
-  const notes = type === "celebration"
-    ? [523, 659, 784, 1047]
-    : [523, 659, 784];
+/* CELEBRATION SOUND */
+
+function playCelebrationSound() {
+
+  const notes = [523, 659, 784, 1047];
 
   notes.forEach((note, index) => {
 
-    setTimeout(() => playTone(note, .3), index * 130);
+    setTimeout(() => {
+      playTone(note, .3);
+    }, index * 150);
 
   });
 }
 
 
-/* 11. ANIMATED STAR CANVAS */
+/* 11. ANIMATED STAR BACKGROUND */
 
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
@@ -509,25 +475,23 @@ function resizeStars() {
   for (let i = 0; i < count; i++) {
 
     stars.push({
-
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-
       radius: Math.random() * 1.7 + .3,
-
       opacity: Math.random(),
-
       speed: Math.random() * .015 + .003
-
     });
 
   }
-
 }
 
 function animateStars() {
 
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  ctx.clearRect(
+    0, 0,
+    window.innerWidth,
+    window.innerHeight
+  );
 
   stars.forEach(star => {
 
@@ -568,33 +532,9 @@ resizeStars();
 animateStars();
 
 
-/* 12. BUTTON INTERACTION EFFECT */
-
-document.querySelectorAll(".glow-button").forEach(button => {
-
-  button.addEventListener("pointerdown", event => {
-
-    const rect = button.getBoundingClientRect();
-
-    button.style.setProperty(
-      "--click-x",
-      (event.clientX - rect.left) + "px"
-    );
-
-    button.style.setProperty(
-      "--click-y",
-      (event.clientY - rect.top) + "px"
-    );
-
-  });
-
-});
-
-
-/* 13. CONSOLE MESSAGE */
+/* 12. CONSOLE */
 
 console.log(
   "%c Made with love for Bubu ❤️ ",
   "background:#ff70ad;color:white;padding:12px;font-size:18px;border-radius:10px;"
 );
-
