@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10091c">
+
+<title>For My Bubu ❤️</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="sky"></div>
+<canvas id="stars"></canvas>
+<div class="aurora"></div>
+
+<!-- PASSWORD SCREEN -->
+
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-glow"></div>
+
+  <div class="lock-card">
+    <div class="lock-cats">🐱 💗 🐱</div>
+    <div class="small-label">A SECRET UNIVERSE FOR YOU</div>
+
+    <h1>Hello, Bubu!</h1>
+
+    <p>
+      Your Dudu has prepared something magical.
+      But first, enter our little secret code.
+    </p>
+
+    <div class="lock-input">
+      <span>♡</span>
+      <input id="passcode" type="password"
+             placeholder="Enter secret code"
+             autocomplete="off">
+      <button id="togglePassword" aria-label="Show password">◉</button>
+    </div>
+
+    <button class="glow-button" id="unlockButton">
+      Open My Surprise <span>✦</span>
+    </button>
+
+    <p class="error" id="error"></p>
+
+    <div class="lock-footer">MADE WITH LOVE BY YOUR DUDU</div>
+  </div>
+</div>
+
+<!-- MAIN WEBSITE -->
+
+<main id="website" class="hidden">
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+  <div class="brand">Bubu <span>♥</span> Dudu</div>
+  <div class="nav-label">OUR LITTLE UNIVERSE</div>
+  <button class="music-button" id="musicButton">
+    ♫ <span>Music</span>
+  </button>
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <div class="hero-stars">✦　·　✧　·　✦</div>
+
+  <div class="hero-content">
+    <div class="eyebrow">A SPECIAL DAY FOR SOMEONE SPECIAL</div>
+
+    <h1>Happy Birthday</h1>
+    <h2>My Beautiful Bubu</h2>
+
+    <p>
+      Across every distance, beyond every mile,
+      there is one person who makes my world smile.
+    </p>
+
+    <div class="hero-actions">
+      <button class="glow-button" id="startSurprise">
+        Begin Your Surprise ✨
+      </button>
+      <a href="#birthday" class="text-button">Explore our universe ↓</a>
+    </div>
+  </div>
+
+  <!-- CAT CHARACTERS -->
+
+  <div class="character-stage">
+
+    <div class="character dudu">
+      <svg viewBox="0 0 240 270" role="img" aria-label="Dudu cartoon cat">
+        <defs>
+          <linearGradient id="duduFur" x2="0" y2="1">
+            <stop stop-color="#fffaf5"/>
+            <stop offset="1" stop-color="#cfc3bb"/>
+          </linearGradient>
+        </defs>
+
+        <ellipse cx="120" cy="252" rx="77" ry="10" fill="#0005"/>
+
+        <path d="M49 94 L32 12 Q29 0 48 12 L92 52
+          Q120 36 148 52 L191 12 Q210 0 207 17
+          L191 111 Q214 161 183 211 Q155 245 120 239
+          Q85 245 57 211 Q26 161 49 94Z"
+          fill="url(#duduFur)" stroke="#8c7774" stroke-width="4"/>
+
+        <path d="M54 75 L46 27 L82 61Z" fill="#eeb6c5"/>
+        <path d="M186 75 L194 27 L158 61Z" fill="#eeb6c5"/>
+
+        <ellipse cx="88" cy="123" rx="9" ry="13" fill="#382c32"/>
+        <ellipse cx="152" cy="123" rx="9" ry="13" fill="#382c32"/>
+        <circle cx="91" cy="119" r="3" fill="white"/>
+        <circle cx="155" cy="119" r="3" fill="white"/>
+
+        <path d="M110 145 Q120 153 130 145 Q120 163 110 145"
+          fill="#e78ba4"/>
+
+        <path d="M120 159 Q105 174 94 162 M120 159 Q135 174 146 162"
+          fill="none" stroke="#59444b" stroke-width="3"
+          stroke-linecap="round"/>
+
+        <ellipse cx="72" cy="150" rx="16" ry="9" fill="#f5a8b9" opacity=".5"/>
+        <ellipse cx="168" cy="150" rx="16" ry="9" fill="#f5a8b9" opacity=".5"/>
+
+        <path d="M55 180 Q20 178 26 144"
+          fill="none" stroke="#9d8881" stroke-width="12"
+          stroke-linecap="round"/>
+
+        <path d="M185 180 Q220 178 214 144"
+          fill="none" stroke="#9d8881" stroke-width="12"
+          stroke-linecap="round"/>
+
+        <path d="M86 218 Q120 235 154 218"
+          fill="none" stroke="#e7a0b5" stroke-width="7"/>
+      </svg>
+      <div class="character-name">DUDU <span>🐻</span></div>
+      <div class="character-caption">Your favourite boy</div>
+    </div>
+
+    <div class="love-symbol">♥</div>
+
+    <div class="character bubu">
+      <svg viewBox="0 0 240 270" role="img" aria-label="Bubu birthday cartoon cat">
+        <defs>
+          <linearGradient id="bubuFur" x2="0" y2="1">
+            <stop stop-color="#fffefa"/>
+            <stop offset="1" stop-color="#e8dfda"/>
+          </linearGradient>
+        </defs>
+
+        <ellipse cx="120" cy="252" rx="77" ry="10" fill="#0005"/>
+
+        <path d="M49 94 L32 12 Q29 0 48 12 L92 52
+          Q120 36 148 52 L191 12 Q210 0 207 17
+          L191 111 Q214 161 183 211 Q155 245 120 239
+          Q85 245 57 211 Q26 161 49 94Z"
+          fill="url(#bubuFur)" stroke="#9b8585" stroke-width="4"/>
+
+        <path d="M54 75 L46 27 L82 61Z" fill="#f3b6c7"/>
+        <path d="M186 75 L194 27 L158 61Z" fill="#f3b6c7"/>
+
+        <!-- Birthday crown -->
+
+        <path d="M73 65 L66 24 L99 47 L120 8 L141 47
+          L174 24 L167 65Z"
+          fill="#ffcc69" stroke="#fff0b0" stroke-width="3"/>
+
+        <circle cx="120" cy="18" r="5" fill="#ff78b0"/>
+        <circle cx="83" cy="47" r="5" fill="#b58aff"/>
+        <circle cx="157" cy="47" r="5" fill="#b58aff"/>
+
+        <path d="M76 66 Q120 77 164 66"
+          stroke="#ff76ae" stroke-width="8" fill="none"/>
+
+        <ellipse cx="88" cy="123" rx="9" ry="13" fill="#382c32"/>
+        <ellipse cx="152" cy="123" rx="9" ry="13" fill="#382c32"/>
+        <circle cx="91" cy="119" r="3" fill="white"/>
+        <circle cx="155" cy="119" r="3" fill="white"/>
+
+        <path d="M110 145 Q120 153 130 145 Q120 163 110 145"
+          fill="#e78ba4"/>
+
+        <path d="M120 159 Q105 174 94 162 M120 159 Q135 174 146 162"
+          fill="none" stroke="#59444b" stroke-width="3"
+          stroke-linecap="round"/>
+
+        <ellipse cx="72" cy="150" rx="16" ry="9" fill="#f5a8b9" opacity=".6"/>
+        <ellipse cx="168" cy="150" rx="16" ry="9" fill="#f5a8b9" opacity=".6"/>
+
+        <path d="M55 180 Q20 178 26 144"
+          fill="none" stroke="#9b8585" stroke-width="12"
+          stroke-linecap="round"/>
+
+        <path d="M185 180 Q220 178 214 144"
+          fill="none" stroke="#9b8585" stroke-width="12"
+          stroke-linecap="round"/>
+      </svg>
+
+      <div class="character-name">BUBU <span>👑</span></div>
+      <div class="character-caption">The birthday princess</div>
+    </div>
+
+  </div>
+
+  <div class="scroll-indicator">SCROLL TO DISCOVER <span>↓</span></div>
+</section>
+
+<!-- COUNTDOWN -->
+
+<section class="section countdown-section" id="birthday">
+  <div class="section-heading">
+    <div class="eyebrow">THE MOST BEAUTIFUL DAY</div>
+    <h2>A Day Made For You</h2>
+    <p>November 9 · A little more magic every year.</p>
+  </div>
+
+  <div class="countdown-grid">
+    <div class="time-card"><strong id="days">00</strong><span>DAYS</span></div>
+    <div class="time-card"><strong id="hours">00</strong><span>HOURS</span></div>
+    <div class="time-card"><strong id="minutes">00</strong><span>MINUTES</span></div>
+    <div class="time-card"><strong id="seconds">00</strong><span>SECONDS</span></div>
+  </div>
+</section>
+
+<!-- CAKE -->
+
+<section class="section cake-section">
+  <div class="section-heading">
+    <div class="eyebrow">MAKE A WISH, PRINCESS</div>
+    <h2>Your Birthday Cake 🎂</h2>
+    <p>Four little flames, a million wishes.</p>
+  </div>
+
+  <div class="cake-scene">
+    <div class="cake-glow"></div>
+
+    <div class="candles">
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+    </div>
+
+    <div class="cake-top"></div>
+    <div class="cake-body">
+      <div class="cream-drip"></div>
+      <div class="cake-decoration">♥　✦　♥　✦　♥</div>
+      <div class="cake-message">BUBU</div>
+    </div>
+    <div class="cake-plate"></div>
+  </div>
+
+  <button class="glow-button" id="blowButton">Blow Out The Candles 🕯️</button>
+  <p class="cake-status" id="cakeStatus">Close your eyes and make a beautiful wish.</p>
+</section>
+
+<!-- GIFT -->
+
+<section class="section gift-section">
+  <div class="section-heading">
+    <div class="eyebrow">A PRESENT FROM DUDU</div>
+    <h2>Something For You</h2>
+    <p>There is a little surprise waiting inside.</p>
+  </div>
+
+  <div class="gift-stage">
+    <div class="gift-box" id="giftBox">
+      <div class="gift-lid">
+        <div class="gift-bow">🎀</div>
+      </div>
+      <div class="gift-body">
+        <div class="gift-ribbon"></div>
+        <div class="gift-heart">♥</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="glow-button" id="giftButton">Open Your Gift 🎁</button>
+  <p class="gift-result" id="giftResult"></p>
+</section>
+
+<!-- LETTER -->
+
+<section class="section letter-section">
+  <div class="section-heading">
+    <div class="eyebrow">WORDS FROM MY HEART</div>
+    <h2>A Letter For My Bubu</h2>
+    <p>Some things are better written from the heart.</p>
+  </div>
+
+  <div class="letter-envelope" id="letterEnvelope">
+    <div class="letter-flap"></div>
+    <div class="letter-paper">
+      <h3>My Dearest Bubu ❤️</h3>
+      <p>
+        Happy Birthday, my favourite person.
+        <br><br>
+        I wish I could be beside you today,
+        bring you flowers, hold your hands,
+        and watch you smile when you see your cake.
+        <br><br>
+        Even though we are far away,
+        you are never far from my thoughts.
+        <br><br>
+        May every dream you carry come true.
+        May every day bring you a reason to smile.
+        <br><br>
+        I am sending you the biggest virtual hug
+        until I can give you a real one.
+        <br><br>
+        Forever your Dudu. 💗
+      </p>
+    </div>
+  </div>
+
+  <button class="glow-button" id="letterButton">Read My Letter 💌</button>
+</section>
+
+<!-- PHOTO MEMORIES -->
+
+<section class="section memories-section">
+  <div class="section-heading">
+    <div class="eyebrow">OUR LITTLE WORLD</div>
+    <h2>Moments To Remember</h2>
+    <p>Replace these pictures with your favourite memories.</p>
+  </div>
+
+  <div class="memory-grid">
+    <div class="memory-card">
+      <img src="https://placehold.co/600x700/45213f/fff0f7?text=Our+First+Memory" alt="First memory">
+      <div class="memory-caption">The beginning of us ♥</div>
+    </div>
+
+    <div class="memory-card">
+      <img src="https://placehold.co/600x700/58335f/fff0f7?text=Our+Favourite+Moment" alt="Favourite memory">
+      <div class="memory-caption">My favourite moment ✨</div>
+    </div>
+
+    <div class="memory-card">
+      <img src="https://placehold.co/600x700/382b60/fff0f7?text=Forever+Us" alt="Forever memory">
+      <div class="memory-caption">Always and forever 💗</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL MESSAGE -->
+
+<section class="final-section">
+  <div class="final-heart">♡</div>
+  <div class="eyebrow">ONE LAST THING</div>
+  <h2>Happy Birthday,<br><span>My Bubu.</span></h2>
+  <p>
+    If I could give you one thing in this world,
+    it would be the ability to see yourself
+    through my eyes. Then you would know
+    how incredibly special you are.
+  </p>
+
+  <div class="final-signature">With all my love, Dudu ❤️</div>
+
+  <button class="glow-button" id="finalCelebrate">Celebrate Again ✨</button>
+</section>
+
+<footer>
+  <div class="footer-brand">Bubu <span>♥</span> Dudu</div>
+  <p>A little universe created just for you.</p>
+  <p class="copyright">MADE WITH LOVE · NOVEMBER 9</p>
+</footer>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
