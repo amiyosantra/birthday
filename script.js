@@ -1,521 +1,253 @@
 "use strict";
 
 /* =====================================
-   CONFIGURATION
+   BUBU & DUDU — BIRTHDAY WEBSITE
 ===================================== */
 
-const CONFIG = {
-  password: "load",
-  birthdayMonth: 10, // November (JavaScript months start at 0)
-  birthdayDay: 9,
-  birthdayYear: 2026
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const CONFIG = {
+    password: "load",
+    birthday: new Date(2026, 10, 9, 0, 0, 0)
+  };
 
-/* =====================================
-   ELEMENTS
-===================================== */
+  /* PASSWORD UNLOCK */
 
-const $ = (id) => document.getElementById(id);
+  const lockScreen = document.getElementById("lockScreen");
+  const website = document.getElementById("website");
+  const passwordForm = document.getElementById("passwordForm");
+  const passwordInput = document.getElementById("passwordInput");
+  const passwordError = document.getElementById("passwordError");
 
-const lockScreen = $("lockScreen");
-const website = $("website");
-const passwordForm = $("passwordForm");
-const passwordInput = $("passwordInput");
-const passwordError = $("passwordError");
-
-/* =====================================
-   PASSWORD
-===================================== */
-
-passwordForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const enteredPassword = passwordInput.value.trim().toLowerCase();
-
-  if (enteredPassword !== CONFIG.password) {
-    passwordError.textContent = "Incorrect password. Try again, Bubu ❤️";
-    passwordInput.value = "";
-    passwordInput.focus();
+  if (!lockScreen || !website || !passwordForm || !passwordInput) {
+    console.error("Password screen elements are missing. Check index.html IDs.");
     return;
   }
 
-  passwordError.textContent = "";
-  lockScreen.classList.add("hidden");
-  website.classList.remove("hidden");
+  passwordForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+    const enteredPassword = passwordInput.value.trim().toLowerCase();
 
-  startHearts();
-  launchConfetti();
+    if (enteredPassword === CONFIG.password) {
+      passwordError.textContent = "";
+      lockScreen.classList.add("hidden");
+      website.classList.remove("hidden");
 
-  // Music begins only after the user interacts with the page.
-  await toggleMusic(true);
+      document.body.classList.add("unlocked");
+      startCountdown();
+    } else {
+      passwordError.textContent = "Oops! That's not the secret word. Try again, Bubu 💗";
+      passwordInput.value = "";
+      passwordInput.focus();
+    }
+  });
 
-  setTimeout(() => {
-    $("birthday").scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 300);
-});
+  /* COUNTDOWN */
 
-/* =====================================
-   COUNTDOWN
-===================================== */
+  const daysElement = document.getElementById("days");
+  const hoursElement = document.getElementById("hours");
+  const minutesElement = document.getElementById("minutes");
+  const secondsElement = document.getElementById("seconds");
+  const countdownMessage = document.getElementById("countdownMessage");
 
-function getNextBirthday() {
-  const now = new Date();
+  function startCountdown() {
+    function updateCountdown() {
+      const now = new Date();
+      const difference = CONFIG.birthday.getTime() - now.getTime();
 
-  let year = CONFIG.birthdayYear;
+      if (difference <= 0) {
+        daysElement.textContent = "00";
+        hoursElement.textContent = "00";
+        minutesElement.textContent = "00";
+        secondsElement.textContent = "00";
+        countdownMessage.textContent = "IT'S YOUR BIRTHDAY, BUBU! HAPPY BIRTHDAY! 🎂💗";
+        return;
+      }
 
-  let birthday = new Date(
-    year,
-    CONFIG.birthdayMonth,
-    CONFIG.birthdayDay,
-    0, 0, 0
-  );
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / (1000 * 60)) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
 
-  const birthdayEnd = new Date(
-    year,
-    CONFIG.birthdayMonth,
-    CONFIG.birthdayDay,
-    23, 59, 59
-  );
+      daysElement.textContent = String(days).padStart(2, "0");
+      hoursElement.textContent = String(hours).padStart(2, "0");
+      minutesElement.textContent = String(minutes).padStart(2, "0");
+      secondsElement.textContent = String(seconds).padStart(2, "0");
 
-  // Keep the countdown at zero throughout the birthday itself.
-  if (now > birthdayEnd) {
-    year = now.getFullYear();
+      countdownMessage.textContent = "Every second brings us closer to your special day. ♡";
+    }
 
-    birthday = new Date(
-      year,
-      CONFIG.birthdayMonth,
-      CONFIG.birthdayDay,
-      0, 0, 0
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  /* BIRTHDAY CAKE */
+
+  const cake = document.getElementById("cake");
+  const blowButton = document.getElementById("blowButton");
+  const wishMessage = document.getElementById("wishMessage");
+
+  if (cake && blowButton && wishMessage) {
+    blowButton.addEventListener("click", () => {
+      cake.classList.add("blown");
+      blowButton.textContent = "Wish made! 💗";
+      blowButton.disabled = true;
+      blowButton.style.opacity = "0.75";
+
+      wishMessage.textContent =
+        "May all your beautiful wishes come true, my Bubu! ✨💗";
+
+      createConfetti();
+    });
+  }
+
+  /* OPEN AND CLOSE LETTER */
+
+  const envelope = document.getElementById("envelope");
+  const openLetterButton = document.getElementById("openLetterButton");
+  const letterHint = document.getElementById("letterHint");
+
+  if (envelope && openLetterButton && letterHint) {
+    openLetterButton.addEventListener("click", () => {
+      const isOpening = !envelope.classList.contains("open");
+
+      envelope.classList.toggle("open", isOpening);
+
+      if (isOpening) {
+        openLetterButton.textContent = "Close my letter ♡";
+        letterHint.textContent = "A little piece of my heart, written just for you.";
+        createConfetti();
+      } else {
+        openLetterButton.textContent = "Open my letter 💌";
+        letterHint.textContent = "Tap to open it. Take your time reading. ♡";
+      }
+    });
+  }
+
+  /* SIMPLE BACKGROUND MUSIC
+     This creates a small original melody with Web Audio.
+     Browsers only allow it after a user click.
+  */
+
+  const musicButton = document.getElementById("musicButton");
+
+  let audioContext = null;
+  let musicTimer = null;
+  let musicPlaying = false;
+  let noteIndex = 0;
+
+  const melody = [
+    523.25, 659.25, 783.99, 659.25,
+    587.33, 698.46, 783.99, 698.46,
+    523.25, 659.25, 783.99, 880.00,
+    783.99, 659.25, 587.33, 523.25
+  ];
+
+  function playNote(frequency) {
+    if (!audioContext || audioContext.state !== "running") return;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.045,
+      audioContext.currentTime + 0.04
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioContext.currentTime + 0.42
     );
 
-    if (now > new Date(
-      year,
-      CONFIG.birthdayMonth,
-      CONFIG.birthdayDay,
-      23, 59, 59
-    )) {
-      birthday = new Date(
-        year + 1,
-        CONFIG.birthdayMonth,
-        CONFIG.birthdayDay,
-        0, 0, 0
-      );
-    }
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.45);
   }
 
-  return birthday;
-}
-
-function updateCountdown() {
-  const now = new Date();
-  const birthday = getNextBirthday();
-
-  const isBirthday =
-    now.getFullYear() === birthday.getFullYear() &&
-    now.getMonth() === birthday.getMonth() &&
-    now.getDate() === birthday.getDate();
-
-  if (isBirthday) {
-    $("days").textContent = "00";
-    $("hours").textContent = "00";
-    $("minutes").textContent = "00";
-    $("seconds").textContent = "00";
-    $("countdownMessage").textContent =
-      "IT'S YOUR BIRTHDAY, BUBU! HAPPY BIRTHDAY! 🎉❤️";
-    return;
-  }
-
-  const difference = Math.max(0, birthday.getTime() - now.getTime());
-  const totalSeconds = Math.floor(difference / 1000);
-
-  $("days").textContent =
-    String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
-
-  $("hours").textContent =
-    String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
-
-  $("minutes").textContent =
-    String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-
-  $("seconds").textContent =
-    String(totalSeconds % 60).padStart(2, "0");
-
-  $("countdownMessage").textContent =
-    "Counting every moment until your special day ❤️";
-}
-
-/* =====================================
-   BACKGROUND MUSIC
-===================================== */
-
-let audioContext = null;
-let musicEnabled = false;
-let musicTimer = null;
-let musicIndex = 0;
-
-const melody = [
-  392, 440, 494, 440,
-  392, 330, 349, 392,
-  440, 494, 523, 494,
-  440, 392, 349, 330
-];
-
-function createAudioContext() {
-  if (!audioContext) {
+  async function startMusic() {
     const AudioContextClass =
       window.AudioContext || window.webkitAudioContext;
 
     if (!AudioContextClass) {
-      return false;
+      musicButton.textContent = "Music not supported";
+      return;
     }
 
-    audioContext = new AudioContextClass();
-  }
-
-  return true;
-}
-
-function playTone(frequency, duration, volume = 0.025, type = "sine") {
-  if (!audioContext || !musicEnabled) return;
-
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-
-  oscillator.type = type;
-  oscillator.frequency.value = frequency;
-
-  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(
-    volume,
-    audioContext.currentTime + 0.04
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    audioContext.currentTime + duration
-  );
-
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + duration + 0.05);
-}
-
-function playMusicStep() {
-  if (!musicEnabled || !audioContext) return;
-
-  const note = melody[musicIndex % melody.length];
-
-  playTone(note, 0.55, 0.025, "sine");
-  playTone(note / 2, 0.65, 0.012, "triangle");
-
-  musicIndex++;
-}
-
-async function toggleMusic(forceOn = false) {
-  const button = $("musicButton");
-
-  if (musicEnabled && !forceOn) {
-    musicEnabled = false;
-    clearInterval(musicTimer);
-    musicTimer = null;
-    button.textContent = "♫ Music: Off";
-    return;
-  }
-
-  if (musicEnabled) return;
-
-  try {
-    if (!createAudioContext()) {
-      button.textContent = "Music unavailable";
-      return;
+    if (!audioContext) {
+      audioContext = new AudioContextClass();
     }
 
     await audioContext.resume();
 
-    musicEnabled = true;
-    button.textContent = "♫ Music: On";
+    musicPlaying = true;
+    musicButton.classList.add("playing");
+    musicButton.textContent = "♫ Music playing";
 
-    playMusicStep();
-    musicTimer = setInterval(playMusicStep, 650);
+    playNote(melody[noteIndex]);
+    noteIndex = (noteIndex + 1) % melody.length;
 
-  } catch (error) {
-    console.error("Audio could not start:", error);
-    button.textContent = "♫ Music: Off";
-  }
-}
-
-$("musicButton").addEventListener("click", () => {
-  toggleMusic();
-});
-
-/* =====================================
-   LETTER OPENING AND CLOSING
-===================================== */
-
-const letterArea = $("letterArea");
-const letterPaper = $("letterPaper");
-const openLetterButton = $("openLetter");
-const closeLetterButton = $("closeLetter");
-const openLetterLabel = $("openLetterLabel");
-
-let letterOpen = false;
-let letterBusy = false;
-
-function openBirthdayLetter() {
-  if (letterOpen || letterBusy) return;
-
-  letterBusy = true;
-  letterOpen = true;
-
-  letterArea.classList.add("open");
-  openLetterButton.setAttribute("aria-expanded", "true");
-  openLetterLabel.textContent = "Your letter is open ❤️";
-
-  // First open the envelope flap.
-  setTimeout(() => {
-    letterPaper.classList.add("show");
-    letterPaper.setAttribute("aria-hidden", "false");
-
-    letterBusy = false;
-
-    // Bring the complete letter into view.
-    setTimeout(() => {
-      letterPaper.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest"
-      });
-    }, 250);
-
-  }, 500);
-}
-
-function closeBirthdayLetter() {
-  if (!letterOpen || letterBusy) return;
-
-  letterBusy = true;
-
-  letterPaper.classList.add("closing");
-
-  setTimeout(() => {
-    letterPaper.classList.remove("show", "closing");
-    letterPaper.setAttribute("aria-hidden", "true");
-
-    letterArea.classList.remove("open");
-
-    openLetterButton.setAttribute("aria-expanded", "false");
-    openLetterLabel.textContent = "Open Your Letter 💌";
-
-    letterOpen = false;
-    letterBusy = false;
-
-    openLetterButton.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-
-  }, 300);
-}
-
-openLetterButton.addEventListener("click", openBirthdayLetter);
-closeLetterButton.addEventListener("click", closeBirthdayLetter);
-
-/* =====================================
-   BLOW OUT CANDLES
-===================================== */
-
-$("blowButton").addEventListener("click", () => {
-  const candles = $("candles");
-  const wishText = $("wishText");
-
-  if (candles.classList.contains("blown")) {
-    wishText.textContent = "Your beautiful wish is on its way! ❤️";
-    return;
+    musicTimer = setInterval(() => {
+      playNote(melody[noteIndex]);
+      noteIndex = (noteIndex + 1) % melody.length;
+    }, 480);
   }
 
-  candles.classList.add("blown");
+  function stopMusic() {
+    musicPlaying = false;
 
-  wishText.textContent =
-    "May every beautiful wish of yours come true, Bubu! ✨";
-
-  launchConfetti();
-  playCelebrationSound();
-});
-
-/* =====================================
-   CELEBRATION SOUND
-===================================== */
-
-function playCelebrationSound() {
-  try {
-    if (!createAudioContext()) return;
-
-    audioContext.resume();
-
-    const notes = [523, 659, 784, 1046];
-
-    notes.forEach((frequency, index) => {
-      setTimeout(() => {
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-
-        oscillator.type = "triangle";
-        oscillator.frequency.value = frequency;
-
-        gain.gain.setValueAtTime(0.06, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-          0.001,
-          audioContext.currentTime + 0.35
-        );
-
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.4);
-
-      }, index * 140);
-    });
-
-  } catch (error) {
-    console.error("Celebration sound unavailable:", error);
-  }
-}
-
-/* =====================================
-   CONFETTI
-===================================== */
-
-function launchConfetti() {
-  const container = $("effects");
-
-  const colors = [
-    "#ff8eae",
-    "#ffd166",
-    "#c8a2e8",
-    "#ffffff",
-    "#ffb8d0"
-  ];
-
-  for (let i = 0; i < 90; i++) {
-    const piece = document.createElement("span");
-
-    piece.className = "confetti";
-    piece.style.left = Math.random() * 100 + "vw";
-    piece.style.background =
-      colors[Math.floor(Math.random() * colors.length)];
-
-    piece.style.animationDuration =
-      (2.5 + Math.random() * 3) + "s";
-
-    piece.style.animationDelay =
-      Math.random() * 0.8 + "s";
-
-    container.appendChild(piece);
-
-    setTimeout(() => piece.remove(), 6500);
-  }
-}
-
-/* =====================================
-   FLOATING HEARTS
-===================================== */
-
-let heartTimer = null;
-
-function createHeart() {
-  const container = $("effects");
-  const heart = document.createElement("span");
-
-  heart.className = "effect-heart";
-
-  const symbols = ["♥", "♡", "💕", "💗", "✨"];
-  heart.textContent =
-    symbols[Math.floor(Math.random() * symbols.length)];
-
-  heart.style.left = Math.random() * 100 + "vw";
-  heart.style.fontSize = (16 + Math.random() * 20) + "px";
-  heart.style.color = "#ffabc6";
-
-  container.appendChild(heart);
-
-  setTimeout(() => heart.remove(), 5100);
-}
-
-function startHearts() {
-  if (heartTimer) return;
-
-  heartTimer = setInterval(createHeart, 1000);
-}
-
-/* =====================================
-   STAR BACKGROUND
-===================================== */
-
-const canvas = $("stars");
-const context = canvas.getContext("2d");
-
-let stars = [];
-let canvasWidth = 0;
-let canvasHeight = 0;
-
-function resizeStars() {
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-
-  canvasWidth = window.innerWidth;
-  canvasHeight = window.innerHeight;
-
-  canvas.width = Math.round(canvasWidth * ratio);
-  canvas.height = Math.round(canvasHeight * ratio);
-
-  context.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-  stars = Array.from({ length: 100 }, () => ({
-    x: Math.random() * canvasWidth,
-    y: Math.random() * canvasHeight,
-    radius: Math.random() * 1.5 + 0.3,
-    opacity: Math.random() * 0.8 + 0.2,
-    speed: Math.random() * 0.008 + 0.002
-  }));
-}
-
-function animateStars() {
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-
-  for (const star of stars) {
-    star.opacity += star.speed;
-
-    if (star.opacity >= 1 || star.opacity <= 0.15) {
-      star.speed *= -1;
+    if (musicTimer) {
+      clearInterval(musicTimer);
+      musicTimer = null;
     }
 
-    context.beginPath();
-    context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-    context.fillStyle = `rgba(255,255,255,${star.opacity})`;
-    context.fill();
+    if (audioContext) {
+      audioContext.suspend();
+    }
+
+    musicButton.classList.remove("playing");
+    musicButton.textContent = "♫ Play our music";
   }
 
-  requestAnimationFrame(animateStars);
-}
+  if (musicButton) {
+    musicButton.addEventListener("click", async () => {
+      try {
+        if (musicPlaying) {
+          stopMusic();
+        } else {
+          await startMusic();
+        }
+      } catch (error) {
+        console.error("Music could not start:", error);
+        musicButton.textContent = "Music unavailable";
+      }
+    });
+  }
 
-window.addEventListener("resize", resizeStars);
+  /* CONFETTI */
 
-resizeStars();
-animateStars();
+  function createConfetti() {
+    const colors = ["#f27ca8", "#c9a4ed", "#ffd166", "#ff9fbd", "#ffffff"];
 
-/* =====================================
-   FINAL CELEBRATION
-===================================== */
+    for (let i = 0; i < 45; i++) {
+      const piece = document.createElement("span");
 
-$("celebrateButton").addEventListener("click", () => {
-  launchConfetti();
-  playCelebrationSound();
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.backgroundColor =
+        colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = (2 + Math.random() * 2) + "s";
+      piece.style.animationDelay = (Math.random() * 0.7) + "s";
 
-  for (let i = 0; i < 15; i++) {
-    setTimeout(createHeart, i * 120);
+      document.body.appendChild(piece);
+
+      setTimeout(() => {
+        piece.remove();
+      }, 5000);
+    }
   }
 });
