@@ -944,3 +944,20 @@ footer {
     transition-duration: 0.01ms !important;
   }
 }
+.confetti-piece {
+  position: fixed;
+  top: -15px;
+  z-index: 9999;
+  width: 9px;
+  height: 14px;
+  border-radius: 3px;
+  pointer-events: none;
+  animation: confettiFall 3s linear forwards;
+}
+
+@keyframes confettiFall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
