@@ -174,7 +174,7 @@
     $("h").textContent = two(Math.floor(t % 86400 / 3600));
     $("m").textContent = two(Math.floor(t % 3600 / 60));
     $("s").textContent = two(t % 60);
-    msg.textContent = "Every second brings me closer to wishing you in person (in spirit).";
+    msg.textContent = "Every second brings me closer to wishing you in person .";
   }
 
   // ---------- CAKE ----------
@@ -182,7 +182,7 @@
   const wish = $("wish");
   function checkCandles() {
     if (candles.every((c) => c.classList.contains("out"))) {
-      wish.textContent = "Wish made. May every one of them come true, Bubu. ✨";
+      wish.textContent = "Wish made. May every one of them come true, Beralini❤️. ✨";
       confetti(110); chime();
     }
   }
