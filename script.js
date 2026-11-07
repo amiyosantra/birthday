@@ -1,253 +1,190 @@
 "use strict";
+(function () {
+  // ---------- SETTINGS ----------
+  const PASSWORD = "load";                       // not case-sensitive
+  const BIRTHDAY = new Date(2026, 10, 9, 0, 0, 0); // 9 Nov 2026, local time
 
-/* =====================================
-   BUBU & DUDU — BIRTHDAY WEBSITE
-===================================== */
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  let unlocked = false;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const CONFIG = {
-    password: "load",
-    birthday: new Date(2026, 10, 9, 0, 0, 0)
-  };
+  // ---------- STAR SKY (runs from the start) ----------
+  const cv = $("sky"), cx = cv && cv.getContext("2d");
+  let stars = [], shoot = [], W = 0, H = 0;
+  function sizeSky() {
+    if (!cv) return;
+    const r = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * r; cv.height = H * r;
+    cx.setTransform(r, 0, 0, r, 0, 0);
+    stars = Array.from({ length: Math.round(W * H / 9000) }, () => ({
+      x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.5 + 0.3,
+      a: Math.random(), v: (Math.random() * 0.01 + 0.003) * (Math.random() < 0.5 ? -1 : 1)
+    }));
+  }
+  function drawSky() {
+    cx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      s.a += s.v; if (s.a > 1 || s.a < 0.15) s.v *= -1;
+      cx.fillStyle = "rgba(255,240,250," + s.a + ")";
+      cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, 6.283); cx.fill();
+    }
+    if (!reduce && Math.random() < 0.006) shoot.push({ x: Math.random() * W, y: Math.random() * H * 0.4, l: 0 });
+    shoot = shoot.filter((s) => s.l < 40);
+    for (const s of shoot) {
+      s.l++; s.x += 9; s.y += 4;
+      const g = cx.createLinearGradient(s.x, s.y, s.x - 80, s.y - 36);
+      g.addColorStop(0, "rgba(255,217,138,.9)"); g.addColorStop(1, "rgba(255,217,138,0)");
+      cx.strokeStyle = g; cx.lineWidth = 2;
+      cx.beginPath(); cx.moveTo(s.x, s.y); cx.lineTo(s.x - 80, s.y - 36); cx.stroke();
+    }
+    requestAnimationFrame(drawSky);
+  }
+  if (cv) { sizeSky(); drawSky(); addEventListener("resize", sizeSky); }
 
-  /* PASSWORD UNLOCK */
+  // ---------- EFFECTS ----------
+  const fx = $("fx");
+  function confetti(n) {
+    if (!fx) return;
+    const cols = ["#ff8fb1", "#ffd98a", "#d8b4ff", "#ffffff", "#ffb3c9"];
+    for (let i = 0; i < (n || 90); i++) {
+      const p = document.createElement("span");
+      p.className = "conf";
+      p.style.cssText = "left:" + Math.random() * 100 + "vw;background:" + pick(cols) +
+        ";animation-duration:" + (2.5 + Math.random() * 3) + "s;animation-delay:" + Math.random() * 0.8 + "s";
+      fx.appendChild(p); setTimeout(() => p.remove(), 6500);
+    }
+  }
+  function heart() {
+    if (!fx) return;
+    const h = document.createElement("span");
+    h.className = "rise"; h.textContent = pick(["♥", "♡", "✦", "💗", "✨"]);
+    h.style.cssText = "left:" + Math.random() * 100 + "vw;font-size:" + (16 + Math.random() * 22) + "px;color:#ffabc6";
+    fx.appendChild(h); setTimeout(() => h.remove(), 5200);
+  }
+  let heartTimer = null;
 
-  const lockScreen = document.getElementById("lockScreen");
-  const website = document.getElementById("website");
-  const passwordForm = document.getElementById("passwordForm");
-  const passwordInput = document.getElementById("passwordInput");
-  const passwordError = document.getElementById("passwordError");
-
-  if (!lockScreen || !website || !passwordForm || !passwordInput) {
-    console.error("Password screen elements are missing. Check index.html IDs.");
-    return;
+  // ---------- MUSIC (generated, no file needed) ----------
+  const musicBtn = $("musicBtn");
+  let ac = null, mTimer = null, playing = false, step = 0;
+  const chords = [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]];
+  const tune = [0, 1, 2, 1, 0, 1, 2, 1];
+  function tone(f, t, d, vol, type) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d + 0.05);
+  }
+  function tick() {
+    const c = chords[Math.floor(step / 8) % chords.length], t = ac.currentTime;
+    tone(c[tune[step % 8]] * 2, t, 0.9, 0.05, "sine");
+    if (step % 8 === 0) { tone(c[0] / 2, t, 3.2, 0.05, "triangle"); }
+    step++;
+  }
+  async function music(on) {
+    if (!musicBtn) return;
+    try {
+      if (on) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { musicBtn.textContent = "Music unavailable"; return; }
+        ac = ac || new AC(); await ac.resume();
+        if (!playing) { playing = true; tick(); mTimer = setInterval(tick, 450); }
+        musicBtn.textContent = "♫ Music on";
+      } else {
+        playing = false; clearInterval(mTimer); musicBtn.textContent = "♫ Music off";
+      }
+    } catch (e) { console.warn("Audio failed:", e); }
+  }
+  if (musicBtn) musicBtn.addEventListener("click", () => music(!playing));
+  function chime() {
+    try {
+      if (!ac) return; [523, 659, 784, 1046].forEach((f, i) => tone(f, ac.currentTime + i * 0.14, 0.5, 0.08, "triangle"));
+    } catch (e) {}
   }
 
-  passwordForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const enteredPassword = passwordInput.value.trim().toLowerCase();
-
-    if (enteredPassword === CONFIG.password) {
-      passwordError.textContent = "";
-      lockScreen.classList.add("hidden");
-      website.classList.remove("hidden");
-
-      document.body.classList.add("unlocked");
-      startCountdown();
-    } else {
-      passwordError.textContent = "Oops! That's not the secret word. Try again, Bubu 💗";
-      passwordInput.value = "";
-      passwordInput.focus();
+  // ---------- PASSWORD ----------
+  const form = $("lockForm"), pw = $("pw"), err = $("err");
+  if (form) form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (pw.value.trim().toLowerCase() !== PASSWORD) {
+      err.textContent = "Not quite. Try again, Bubu.";
+      form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+      pw.value = ""; pw.focus(); return;
     }
+    unlocked = true;
+    $("lock").classList.add("hide");
+    $("site").classList.remove("hide");
+    window.scrollTo(0, 0);
+    tickClock(); setInterval(tickClock, 1000);
+    confetti(120); heartTimer = setInterval(heart, 1100);
+    music(true);
   });
 
-  /* COUNTDOWN */
-
-  const daysElement = document.getElementById("days");
-  const hoursElement = document.getElementById("hours");
-  const minutesElement = document.getElementById("minutes");
-  const secondsElement = document.getElementById("seconds");
-  const countdownMessage = document.getElementById("countdownMessage");
-
-  function startCountdown() {
-    function updateCountdown() {
-      const now = new Date();
-      const difference = CONFIG.birthday.getTime() - now.getTime();
-
-      if (difference <= 0) {
-        daysElement.textContent = "00";
-        hoursElement.textContent = "00";
-        minutesElement.textContent = "00";
-        secondsElement.textContent = "00";
-        countdownMessage.textContent = "IT'S YOUR BIRTHDAY, BUBU! HAPPY BIRTHDAY! 🎂💗";
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      daysElement.textContent = String(days).padStart(2, "0");
-      hoursElement.textContent = String(hours).padStart(2, "0");
-      minutesElement.textContent = String(minutes).padStart(2, "0");
-      secondsElement.textContent = String(seconds).padStart(2, "0");
-
-      countdownMessage.textContent = "Every second brings us closer to your special day. ♡";
+  // ---------- COUNTDOWN ----------
+  const two = (n) => String(n).padStart(2, "0");
+  function tickClock() {
+    const diff = BIRTHDAY - new Date();
+    const msg = $("cmsg");
+    if (diff <= 0) {
+      ["d", "h", "m", "s"].forEach((k) => ($(k).textContent = "00"));
+      msg.textContent = "It's your day, Bubu. Happy Birthday! 🎉"; return;
     }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    const t = Math.floor(diff / 1000);
+    $("d").textContent = two(Math.floor(t / 86400));
+    $("h").textContent = two(Math.floor(t % 86400 / 3600));
+    $("m").textContent = two(Math.floor(t % 3600 / 60));
+    $("s").textContent = two(t % 60);
+    msg.textContent = "Every second brings me closer to wishing you in person (in spirit).";
   }
 
-  /* BIRTHDAY CAKE */
-
-  const cake = document.getElementById("cake");
-  const blowButton = document.getElementById("blowButton");
-  const wishMessage = document.getElementById("wishMessage");
-
-  if (cake && blowButton && wishMessage) {
-    blowButton.addEventListener("click", () => {
-      cake.classList.add("blown");
-      blowButton.textContent = "Wish made! 💗";
-      blowButton.disabled = true;
-      blowButton.style.opacity = "0.75";
-
-      wishMessage.textContent =
-        "May all your beautiful wishes come true, my Bubu! ✨💗";
-
-      createConfetti();
-    });
-  }
-
-  /* OPEN AND CLOSE LETTER */
-
-  const envelope = document.getElementById("envelope");
-  const openLetterButton = document.getElementById("openLetterButton");
-  const letterHint = document.getElementById("letterHint");
-
-  if (envelope && openLetterButton && letterHint) {
-    openLetterButton.addEventListener("click", () => {
-      const isOpening = !envelope.classList.contains("open");
-
-      envelope.classList.toggle("open", isOpening);
-
-      if (isOpening) {
-        openLetterButton.textContent = "Close my letter ♡";
-        letterHint.textContent = "A little piece of my heart, written just for you.";
-        createConfetti();
-      } else {
-        openLetterButton.textContent = "Open my letter 💌";
-        letterHint.textContent = "Tap to open it. Take your time reading. ♡";
-      }
-    });
-  }
-
-  /* SIMPLE BACKGROUND MUSIC
-     This creates a small original melody with Web Audio.
-     Browsers only allow it after a user click.
-  */
-
-  const musicButton = document.getElementById("musicButton");
-
-  let audioContext = null;
-  let musicTimer = null;
-  let musicPlaying = false;
-  let noteIndex = 0;
-
-  const melody = [
-    523.25, 659.25, 783.99, 659.25,
-    587.33, 698.46, 783.99, 698.46,
-    523.25, 659.25, 783.99, 880.00,
-    783.99, 659.25, 587.33, 523.25
-  ];
-
-  function playNote(frequency) {
-    if (!audioContext || audioContext.state !== "running") return;
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-
-    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.045,
-      audioContext.currentTime + 0.04
-    );
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      audioContext.currentTime + 0.42
-    );
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.45);
-  }
-
-  async function startMusic() {
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      musicButton.textContent = "Music not supported";
-      return;
-    }
-
-    if (!audioContext) {
-      audioContext = new AudioContextClass();
-    }
-
-    await audioContext.resume();
-
-    musicPlaying = true;
-    musicButton.classList.add("playing");
-    musicButton.textContent = "♫ Music playing";
-
-    playNote(melody[noteIndex]);
-    noteIndex = (noteIndex + 1) % melody.length;
-
-    musicTimer = setInterval(() => {
-      playNote(melody[noteIndex]);
-      noteIndex = (noteIndex + 1) % melody.length;
-    }, 480);
-  }
-
-  function stopMusic() {
-    musicPlaying = false;
-
-    if (musicTimer) {
-      clearInterval(musicTimer);
-      musicTimer = null;
-    }
-
-    if (audioContext) {
-      audioContext.suspend();
-    }
-
-    musicButton.classList.remove("playing");
-    musicButton.textContent = "♫ Play our music";
-  }
-
-  if (musicButton) {
-    musicButton.addEventListener("click", async () => {
-      try {
-        if (musicPlaying) {
-          stopMusic();
-        } else {
-          await startMusic();
-        }
-      } catch (error) {
-        console.error("Music could not start:", error);
-        musicButton.textContent = "Music unavailable";
-      }
-    });
-  }
-
-  /* CONFETTI */
-
-  function createConfetti() {
-    const colors = ["#f27ca8", "#c9a4ed", "#ffd166", "#ff9fbd", "#ffffff"];
-
-    for (let i = 0; i < 45; i++) {
-      const piece = document.createElement("span");
-
-      piece.className = "confetti-piece";
-      piece.style.left = Math.random() * 100 + "vw";
-      piece.style.backgroundColor =
-        colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDuration = (2 + Math.random() * 2) + "s";
-      piece.style.animationDelay = (Math.random() * 0.7) + "s";
-
-      document.body.appendChild(piece);
-
-      setTimeout(() => {
-        piece.remove();
-      }, 5000);
+  // ---------- CAKE ----------
+  const candles = Array.from(document.querySelectorAll(".candle"));
+  const wish = $("wish");
+  function checkCandles() {
+    if (candles.every((c) => c.classList.contains("out"))) {
+      wish.textContent = "Wish made. May every one of them come true, Bubu. ✨";
+      confetti(110); chime();
     }
   }
-});
+  candles.forEach((c) => c.addEventListener("click", () => { c.classList.add("out"); checkCandles(); }));
+  const blow = $("blow");
+  if (blow) blow.addEventListener("click", () => {
+    candles.forEach((c, i) => setTimeout(() => { c.classList.add("out"); if (i === candles.length - 1) checkCandles(); }, i * 160));
+  });
+
+  // ---------- ENVELOPE + LETTER ----------
+  const env = $("env"), modal = $("modal"), paper = modal && modal.querySelector(".paper");
+  function openLetter() {
+    if (!env || !modal.hidden) return;
+    env.classList.add("open");
+    setTimeout(() => {
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      paper.scrollTop = 0; paper.focus({ preventScroll: true });
+      // restart the paragraph fade-in each time it opens
+      paper.style.animation = "none"; void paper.offsetWidth; paper.style.animation = "";
+      paper.querySelectorAll("p").forEach((p) => { p.style.animation = "none"; void p.offsetWidth; p.style.animation = ""; });
+    }, 900);
+  }
+  function closeLetter() {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    env.classList.remove("open");
+    env.focus({ preventScroll: true });
+  }
+  if (env) env.addEventListener("click", openLetter);
+  const closeBtn = $("closeL");
+  if (closeBtn) closeBtn.addEventListener("click", closeLetter);
+  if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeLetter(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && modal && !modal.hidden) closeLetter(); });
+
+  // ---------- FINALE ----------
+  const party = $("party");
+  if (party) party.addEventListener("click", () => {
+    confetti(150); chime();
+    for (let i = 0; i < 18; i++) setTimeout(heart, i * 110);
+  });
+})();
