@@ -65,24 +65,47 @@
   }
   let heartTimer = null;
 
-  // ---------- MUSIC (generated, no file needed) ----------
+  // ---------- MUSIC: Happy Birthday tune, generated (no file needed) ----------
   const musicBtn = $("musicBtn");
-  let ac = null, mTimer = null, playing = false, step = 0;
-  const chords = [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]];
-  const tune = [0, 1, 2, 1, 0, 1, 2, 1];
+  let ac = null, master = null, loopTimer = null, playing = false, userStopped = false;
+  const BEAT = 0.55; // seconds per beat (lower = faster)
+  const N = { G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+  const SONG = [ // [note, beats]
+    ["G4", .75], ["G4", .25], ["A4", 1], ["G4", 1], ["C5", 1], ["B4", 2],
+    ["G4", .75], ["G4", .25], ["A4", 1], ["G4", 1], ["D5", 1], ["C5", 2],
+    ["G4", .75], ["G4", .25], ["G5", 1], ["E5", 1], ["C5", 1], ["B4", 1], ["A4", 1],
+    ["F5", .75], ["F5", .25], ["E5", 1], ["C5", 1], ["D5", 1], ["C5", 2]
+  ];
+  // one waltz bar (3 beats) per chord: [bass, chord note 1, chord note 2]
+  const BARS = [
+    [130.8, 329.6, 392], [98, 246.9, 293.7], [130.8, 329.6, 392], [98, 246.9, 293.7],
+    [130.8, 329.6, 392], [130.8, 329.6, 392], [87.3, 220, 261.6], [130.8, 329.6, 392]
+  ];
   function tone(f, t, d, vol, type) {
     const o = ac.createOscillator(), g = ac.createGain();
     o.type = type; o.frequency.value = f;
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(vol, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.03);
     g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d + 0.05);
+    o.connect(g); g.connect(master || ac.destination);
+    o.start(t); o.stop(t + d + 0.05);
   }
-  function tick() {
-    const c = chords[Math.floor(step / 8) % chords.length], t = ac.currentTime;
-    tone(c[tune[step % 8]] * 2, t, 0.9, 0.05, "sine");
-    if (step % 8 === 0) { tone(c[0] / 2, t, 3.2, 0.05, "triangle"); }
-    step++;
+  function playSong() {
+    if (!playing) return;
+    const t0 = ac.currentTime + 0.1;
+    let b = 0;
+    for (const [n, beats] of SONG) {
+      const t = t0 + b * BEAT, d = Math.max(beats * BEAT * 1.1, 0.35);
+      tone(N[n], t, d, 0.11, "sine");
+      tone(N[n] * 2, t, d * 0.6, 0.015, "triangle"); // soft music-box sparkle
+      b += beats;
+    }
+    BARS.forEach((bar, i) => {
+      const t = t0 + i * 3 * BEAT;
+      tone(bar[0], t, BEAT * 2, 0.07, "triangle");
+      for (let k = 1; k <= 2; k++) { tone(bar[1], t + k * BEAT, BEAT * 0.8, 0.02, "sine"); tone(bar[2], t + k * BEAT, BEAT * 0.8, 0.02, "sine"); }
+    });
+    loopTimer = setTimeout(playSong, (b * BEAT + 1.6) * 1000); // pause, then repeat
   }
   async function music(on) {
     if (!musicBtn) return;
@@ -91,14 +114,28 @@
         const AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) { musicBtn.textContent = "Music unavailable"; return; }
         ac = ac || new AC(); await ac.resume();
-        if (!playing) { playing = true; tick(); mTimer = setInterval(tick, 450); }
+        if (ac.state !== "running") return; // browser still blocking; retried on next tap
+        if (!playing) {
+          playing = true;
+          master = ac.createGain(); master.gain.value = 1; master.connect(ac.destination);
+          playSong();
+        }
         musicBtn.textContent = "♫ Music on";
       } else {
-        playing = false; clearInterval(mTimer); musicBtn.textContent = "♫ Music off";
+        playing = false; clearTimeout(loopTimer);
+        if (master) { master.gain.cancelScheduledValues(0); master.gain.value = 0; master = null; }
+        musicBtn.textContent = "♫ Music off";
       }
     } catch (e) { console.warn("Audio failed:", e); }
   }
-  if (musicBtn) musicBtn.addEventListener("click", () => music(!playing));
+  if (musicBtn) musicBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    userStopped = playing; // pressing "off" means: stay off
+    music(!playing);
+  });
+  // Music is ON by default after unlocking. If a browser blocked it, the next tap anywhere starts it.
+  ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
+    document.addEventListener(ev, () => { if (unlocked && !playing && !userStopped) music(true); }, { passive: true }));
   function chime() {
     try {
       if (!ac) return; [523, 659, 784, 1046].forEach((f, i) => tone(f, ac.currentTime + i * 0.14, 0.5, 0.08, "triangle"));
@@ -166,7 +203,10 @@
       paper.scrollTop = 0; paper.focus({ preventScroll: true });
       // restart the paragraph fade-in each time it opens
       paper.style.animation = "none"; void paper.offsetWidth; paper.style.animation = "";
-      paper.querySelectorAll("p").forEach((p) => { p.style.animation = "none"; void p.offsetWidth; p.style.animation = ""; });
+      paper.querySelectorAll("p:not(.from)").forEach((p, i) => {
+        p.style.animation = "none"; void p.offsetWidth; p.style.animation = "";
+        p.style.animationDelay = Math.min(0.6 + i * 0.45, 5) + "s";
+      });
     }, 900);
   }
   function closeLetter() {
