@@ -1,233 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#fff0f5">
-  <title>For My Bubu 💗</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120c22">
+<title>Happy Birthday, Bubu ♥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Manrope:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <div class="background-hearts" aria-hidden="true">
-    <span>♡</span><span>✦</span><span>♡</span><span>✧</span>
-    <span>♡</span><span>✦</span><span>♡</span><span>✧</span>
-  </div>
 
-  <!-- PASSWORD SCREEN -->
-  <section class="lock-screen" id="lockScreen">
-    <div class="lock-card">
-      <div class="lock-characters">🐻‍❄️ 💗 🐻</div>
-      <p class="eyebrow">A little surprise is waiting...</p>
-      <h1>Only for my<br><span>special person</span></h1>
-      <p class="lock-description">
-        A tiny world made with love, just for you.
-      </p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="cat" viewBox="0 0 220 220">
+    <path d="M45 87 52 25 96 65Q110 58 124 65L168 25 176 91Q195 143 168 177Q145 200 110 198Q75 200 52 177Q25 143 45 87Z" fill="var(--fur)" stroke="var(--line)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M59 43 65 82 91 67ZM161 43 155 82 129 67Z" fill="#f2a6bd"/>
+    <ellipse cx="82" cy="112" rx="7" ry="10" fill="#2a1d29"/><ellipse cx="138" cy="112" rx="7" ry="10" fill="#2a1d29"/>
+    <circle cx="84" cy="108" r="2.5" fill="#fff"/><circle cx="140" cy="108" r="2.5" fill="#fff"/>
+    <path d="M103 130Q110 138 117 130Q110 145 103 130Z" fill="#e5849f"/>
+    <path d="M110 143Q100 155 91 146M110 143Q120 155 129 146M67 133 34 126M67 145 34 148M153 133 186 126M153 145 186 148" fill="none" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="66" cy="140" rx="11" ry="6" fill="#ff9db8" opacity=".55"/><ellipse cx="154" cy="140" rx="11" ry="6" fill="#ff9db8" opacity=".55"/>
+  </symbol>
+</svg>
 
-      <form id="passwordForm">
-        <label class="sr-only" for="passwordInput">Enter password</label>
-        <input
-          id="passwordInput"
-          type="password"
-          placeholder="Enter our secret word"
-          autocomplete="off"
-          required
-        >
-        <button type="submit" class="primary-button">Unlock my surprise ♡</button>
-        <p id="passwordError" class="error-message" aria-live="polite"></p>
-      </form>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="fx" aria-hidden="true"></div>
 
-      <div class="lock-footer">Made with love, from your Dudu 💌</div>
+<section id="lock" class="lock">
+  <form id="lockForm" class="lock-card" autocomplete="off">
+    <div class="moon" aria-hidden="true"></div>
+    <h1>A secret for Bubu</h1>
+    <p>Whisper the password to open it.</p>
+    <label class="sr" for="pw">Password</label>
+    <input id="pw" type="password" placeholder="Secret password" required>
+    <button class="btn" type="submit">Unlock</button>
+    <p id="err" class="err" role="alert"></p>
+  </form>
+</section>
+
+<main id="site" class="hide">
+  <button id="musicBtn" class="music" type="button">♫ Music off</button>
+
+  <header class="hero">
+    <p class="kicker">9 November</p>
+    <h1><span class="line">Happy Birthday,</span><span class="line big">Bubu.</span></h1>
+    <p class="lede">Two cities, one heart. I built you a little world to say it properly.</p>
+    <div class="duo">
+      <figure class="pet dudu"><svg viewBox="0 0 220 220"><use href="#cat"/></svg><figcaption>Dudu</figcaption></figure>
+      <span class="beat">♥</span>
+      <figure class="pet bubu"><svg viewBox="0 0 220 220"><use href="#cat"/><path d="M76 68 70 25 96 46 110 12 125 46 151 25 145 68Z" fill="#ffd98a" stroke="#9a6b1f" stroke-width="3" stroke-linejoin="round"/><circle cx="110" cy="30" r="5" fill="#fff"/></svg><figcaption>Bubu</figcaption></figure>
+    </div>
+    <a class="scroll" href="#count">Scroll down ↓</a>
+  </header>
+
+  <section id="count" class="block">
+    <h2>Until your day begins</h2>
+    <div class="clock" role="timer">
+      <div><b id="d">00</b><small>days</small></div><div><b id="h">00</b><small>hours</small></div>
+      <div><b id="m">00</b><small>minutes</small></div><div><b id="s">00</b><small>seconds</small></div>
+    </div>
+    <p id="cmsg" class="note"></p>
+  </section>
+
+  <section class="block">
+    <h2>Make a wish</h2>
+    <p class="note">Tap each candle, or blow them all at once.</p>
+    <div class="cake" id="cake">
+      <div class="candles">
+        <button class="candle" aria-label="Candle 1"><i></i></button><button class="candle" aria-label="Candle 2"><i></i></button>
+        <button class="candle" aria-label="Candle 3"><i></i></button><button class="candle" aria-label="Candle 4"><i></i></button>
+        <button class="candle" aria-label="Candle 5"><i></i></button>
+      </div>
+      <div class="tier t1"></div><div class="tier t2"><span>Bubu ♥</span></div><div class="plate"></div>
+    </div>
+    <button id="blow" class="btn" type="button">Blow all candles</button>
+    <p id="wish" class="note" aria-live="polite"></p>
+  </section>
+
+  <section class="block">
+    <h2>Our moments</h2>
+    <p class="note">Swap these for your own photos: put images in the repo folder and change each <code>src</code>.</p>
+    <div class="photos">
+      <figure><img src="https://placehold.co/600x760/2a1745/ffb3c9?text=Photo+1" alt="Memory 1"><figcaption>The day I knew</figcaption></figure>
+      <figure><img src="https://placehold.co/600x760/3a1f58/ffd98a?text=Photo+2" alt="Memory 2"><figcaption>Our silly side</figcaption></figure>
+      <figure><img src="https://placehold.co/600x760/4a2552/ffffff?text=Photo+3" alt="Memory 3"><figcaption>Still my favourite</figcaption></figure>
     </div>
   </section>
 
-  <!-- MAIN WEBSITE -->
-  <main id="website" class="website hidden">
+  <section class="block">
+    <h2>One more thing</h2>
+    <p class="note">A letter is waiting for you. Tap the envelope.</p>
+    <button id="env" class="env" type="button" aria-label="Open your letter" aria-haspopup="dialog">
+      <span class="e-back"></span><span class="e-card">For Bubu ♥</span><span class="e-front"></span><span class="e-flap"></span><span class="seal">♥</span>
+    </button>
+  </section>
 
-    <nav class="top-nav">
-      <a class="brand" href="#home">Bubu <span>♡</span> Dudu</a>
-      <button id="musicButton" class="music-button" type="button">
-        ♫ Play our music
-      </button>
-    </nav>
+  <section class="block finale">
+    <h2>Happy Birthday, my Bubu</h2>
+    <p class="note">However far apart we are, you always have a home in my heart.</p>
+    <button id="party" class="btn" type="button">Celebrate</button>
+    <p class="sign">Forever yours, Dudu 🐾</p>
+  </section>
+</main>
 
-    <!-- HERO -->
-    <section class="hero section" id="home">
-      <div class="hero-content">
-        <p class="eyebrow">A special day for my favourite human</p>
-        <h1>Happy Birthday,<br><span>My Bubu!</span> 🎀</h1>
-        <p class="hero-text">
-          Even miles apart, you are always the closest person to my heart.
-          Today, this little corner of the internet belongs entirely to you.
-        </p>
-        <a href="#birthday" class="primary-button link-button">
-          Open your surprise <span>↓</span>
-        </a>
-        <div class="distance-note">One heart. Two places. Endless love. ♡</div>
-      </div>
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="lt" hidden>
+  <article class="paper" tabindex="-1">
+    <button id="closeL" class="x" type="button" aria-label="Close letter">×</button>
+    <p class="from">A letter from Dudu</p>
+    <h3 id="lt">My Dearest Bubu,</h3>
+    <!-- Paste your exact original message into these paragraphs if it differs. -->
+    <p>Happy Birthday, my favourite person. ❤️</p>
+    <p>If I could, I would travel every kilometre just to stand in front of you today, hold your hands, and wish you in person.</p>
+    <p>Distance may keep us apart physically, but it cannot change how special you are to me. Every little conversation, every laugh, and every moment we share means something beautiful to me.</p>
+    <p>I hope this new year of your life brings you endless happiness, success, beautiful surprises, and everything your heart wishes for.</p>
+    <p>Keep smiling, keep shining, and never forget that somewhere, your Dudu is always cheering for you.</p>
+    <p class="end">Happy Birthday, My Bubu! ❤️</p>
+    <p class="sig">Forever your Dudu 🐱</p>
+  </article>
+</div>
 
-      <div class="hero-art">
-        <div class="hero-glow"></div>
-        <div class="character-card">
-          <div class="character-hearts">♡ ✧ ♡</div>
-          <div class="characters">
-            <div class="character bubu">
-              <div class="character-face">🐻‍❄️</div>
-              <span>Bubu</span>
-            </div>
-            <div class="heart-between">♥</div>
-            <div class="character dudu">
-              <div class="character-face">🐻</div>
-              <span>Dudu</span>
-            </div>
-          </div>
-          <p>Forever my favourite duo</p>
-        </div>
-        <span class="floating-heart heart-one">♡</span>
-        <span class="floating-heart heart-two">💗</span>
-        <span class="floating-heart heart-three">✦</span>
-      </div>
-    </section>
-
-    <!-- COUNTDOWN -->
-    <section class="birthday-section section" id="birthday">
-      <div class="section-heading">
-        <p class="eyebrow">The day we celebrate you</p>
-        <h2>Counting down to <span>your day</span></h2>
-        <p>November 9, 2026 — a date worth celebrating.</p>
-      </div>
-
-      <div class="countdown" id="countdown">
-        <div class="count-box"><strong id="days">00</strong><span>Days</span></div>
-        <div class="count-box"><strong id="hours">00</strong><span>Hours</span></div>
-        <div class="count-box"><strong id="minutes">00</strong><span>Minutes</span></div>
-        <div class="count-box"><strong id="seconds">00</strong><span>Seconds</span></div>
-      </div>
-      <p class="countdown-message" id="countdownMessage">
-        The countdown is for the most wonderful person. 💗
-      </p>
-    </section>
-
-    <!-- CAKE -->
-    <section class="cake-section section">
-      <div class="section-heading">
-        <p class="eyebrow">Make a little birthday wish</p>
-        <h2>A cake just <span>for you</span> 🎂</h2>
-        <p>Tap the button to blow out the candles.</p>
-      </div>
-
-      <div class="cake-area">
-        <div class="cake" id="cake">
-          <div class="candle-row">
-            <div class="candle"><div class="flame"></div></div>
-            <div class="candle"><div class="flame"></div></div>
-            <div class="candle"><div class="flame"></div></div>
-          </div>
-          <div class="cake-top"></div>
-          <div class="cake-middle"><span>♡</span><span>♡</span><span>♡</span></div>
-          <div class="cake-bottom"></div>
-          <div class="cake-plate"></div>
-        </div>
-      </div>
-
-      <button id="blowButton" class="primary-button" type="button">
-        Blow the candles ✨
-      </button>
-      <p id="wishMessage" class="wish-message" aria-live="polite">
-        Close your eyes and make a wish, Bubu.
-      </p>
-    </section>
-
-    <!-- LOVE NOTE -->
-    <section class="letter-section section" id="letter">
-      <div class="section-heading">
-        <p class="eyebrow">A message from your Dudu</p>
-        <h2>Something I wrote <span>for you</span> 💌</h2>
-        <p>There's something I want you to read.</p>
-      </div>
-
-      <div class="envelope-wrap">
-        <div class="envelope" id="envelope">
-          <div class="letter-paper">
-            <div class="letter-content">
-              <p class="letter-date">NOVEMBER 9 · FOR MY BUBU</p>
-              <h3>My dearest Bubu, 💗</h3>
-
-              <p>
-                Happy Birthday, my love! I wish I could be right beside you
-                today, see your smile, hold your hand, and celebrate every
-                little moment with you.
-              </p>
-
-              <p>
-                Distance may keep us in different places, but it can never
-                change how much you mean to me. You have become such a special
-                part of my life, and I am grateful for every laugh, every
-                conversation, every silly moment, and every memory we share.
-              </p>
-
-              <p>
-                I hope this new year of your life brings you happiness,
-                confidence, good health, beautiful opportunities, and all the
-                little things your heart wishes for. Whenever life gets
-                difficult, remember that someone is always cheering for you.
-              </p>
-
-              <p>
-                I cannot promise that every day will be perfect, but I want
-                to keep choosing you, supporting you, and making memories
-                with you. One day, I hope we won't need screens to celebrate
-                special days together.
-              </p>
-
-              <p>
-                Until then, imagine the biggest hug from me. Enjoy your day,
-                smile a little extra, eat your favourite cake, and never
-                forget how loved you are.
-              </p>
-
-              <p class="letter-signature">
-                Always yours,<br>
-                Your Dudu 🐻<br>
-                <span>With all my love, forever. ♡</span>
-              </p>
-            </div>
-          </div>
-
-          <div class="envelope-back"></div>
-          <div class="envelope-front"></div>
-          <div class="envelope-flap"></div>
-          <div class="envelope-heart">♥</div>
-        </div>
-      </div>
-
-      <button id="openLetterButton" class="primary-button" type="button">
-        Open my letter 💌
-      </button>
-      <p class="letter-hint" id="letterHint">
-        Tap to open it. Take your time reading. ♡
-      </p>
-    </section>
-
-    <!-- FINAL MESSAGE -->
-    <section class="final-section section">
-      <div class="final-card">
-        <div class="final-decor">♡ ✦ ♡</div>
-        <p class="eyebrow">One last thing, Bubu...</p>
-        <h2>You make my world<br><span>more beautiful.</span></h2>
-        <p>
-          Happy Birthday once again. No matter how many kilometres are
-          between us, you will always have a special place in my heart.
-        </p>
-        <div class="final-signature">Your Dudu ♡</div>
-        <div class="final-characters">🐻‍❄️ 💗 🐻</div>
-      </div>
-    </section>
-
-    <footer>
-      Made with endless love · Bubu & Dudu · 2026
-    </footer>
-  </main>
+<script src="script.js"></script>
 </body>
 </html>
