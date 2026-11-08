@@ -147,7 +147,7 @@
   if (form) form.addEventListener("submit", (e) => {
     e.preventDefault();
     if (pw.value.trim().toLowerCase() !== PASSWORD) {
-      err.textContent = "Not quite. Try again, Bubu.";
+      err.textContent = "Not quite. Try again, Meow.";
       form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
       pw.value = ""; pw.focus(); return;
     }
