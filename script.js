@@ -167,7 +167,7 @@
     const msg = $("cmsg");
     if (diff <= 0) {
       ["d", "h", "m", "s"].forEach((k) => ($(k).textContent = "00"));
-      msg.textContent = "It's your day, Bubu. Happy Birthday! 🎉"; return;
+      msg.textContent = "It's your day, Dipika Happy Birthday! 🎉"; return;
     }
     const t = Math.floor(diff / 1000);
     $("d").textContent = two(Math.floor(t / 86400));
